@@ -1,0 +1,513 @@
+{
+  "info": {
+    "name": "Healthcare Appointment API",
+    "description": "Importable Postman collection for the Laravel healthcare appointment API. Register and Login are single shared requests; set role to patient or doctor in Register.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "patient_user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "role",
+      "value": "patient",
+      "type": "string"
+    },
+    {
+      "key": "doctor_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "service_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "appointment_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "appointment_date",
+      "value": "2026-12-20",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1 Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Patient\",\n  \"email\": \"new.patient@gmail.com\",\n  \"password\": \"secret123\",\n  \"role\": \"{{role}}\",\n  \"phone\": \"9876543210\",\n  \"specialization\": \"Cardiology\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/auth/register",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "One endpoint for both roles. Keep role=patient or set the collection variable role=doctor. Doctor registration requires specialization."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Registration returns 201 or 409', function () { pm.expect(pm.response.code).to.be.oneOf([201, 409]); });",
+                  "var response = pm.response.json();",
+                  "if (pm.response.code === 201 && response.data && response.data.token) pm.collectionVariables.set('token', response.data.token);",
+                  "if (response.data && response.data.user && response.data.profile) {",
+                  "  if (response.data.user.role === 'doctor') pm.collectionVariables.set('doctor_id', String(response.data.profile.id));",
+                  "  if (response.data.user.role === 'patient') pm.collectionVariables.set('patient_id', String(response.data.profile.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"patient1@gmail.com\",\n  \"password\": \"password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/auth/login",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Same endpoint for patient and doctor. Replace email and password with the account to log in."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login returns 200', function () { pm.response.to.have.status(200); });",
+                  "var response = pm.response.json();",
+                  "if (response.token) pm.collectionVariables.set('token', response.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/auth/me"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/auth/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 Browse",
+      "item": [
+        {
+          "name": "List doctors",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('List doctors returns 200', function () { pm.response.to.have.status(200); });",
+                  "var response = pm.response.json();",
+                  "if (response.data && response.data.length) pm.collectionVariables.set('doctor_id', String(response.data[0].id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{base_url}}/doctors"
+          }
+        },
+        {
+          "name": "Doctor details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{base_url}}/doctors/{{doctor_id}}"
+          }
+        },
+        {
+          "name": "Doctor availability",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/doctors/{{doctor_id}}/availability?date={{appointment_date}}&slot_minutes=30"
+          }
+        },
+        {
+          "name": "List services",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{base_url}}/services"
+          },
+          "description": "Public endpoint: lists all active services. Add ?doctor_id=<id> to filter."
+        },
+        {
+          "name": "Service details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": "{{base_url}}/services/{{service_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3 Patient",
+      "item": [
+        {
+          "name": "My profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var response = pm.response.json();",
+                  "if (response.data && response.data.user_id) pm.collectionVariables.set('patient_user_id', String(response.data.user_id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/patient/profile"
+          },
+          "description": "Requires a patient Bearer token. Send Login first; the collection saves the returned token automatically."
+        },
+        {
+          "name": "Update profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{patient_user_id}}\",\n  \"name\": \"Test Patient\",\n  \"phone\": \"9876543210\",\n  \"gender\": \"female\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/patient/profile"
+          },
+          "description": "Run My profile first to populate patient_user_id. The ID must match the logged-in patient."
+        },
+        {
+          "name": "Book appointment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doctor_id\": \"{{doctor_id}}\",\n  \"service_id\": \"{{service_id}}\",\n  \"appointment_date\": \"{{appointment_date}}\",\n  \"start_time\": \"10:00\",\n  \"duration_minutes\": 30,\n  \"notes\": \"Initial consultation\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/appointments"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var response = pm.response.json();",
+                  "  if (response.data && response.data.id) pm.collectionVariables.set('appointment_id', String(response.data.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "My appointments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/appointments"
+          }
+        },
+        {
+          "name": "Reschedule appointment",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointment_date\": \"{{appointment_date}}\",\n  \"start_time\": \"11:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/appointments/{{appointment_id}}"
+          }
+        },
+        {
+          "name": "Cancel appointment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cancel_reason\": \"Schedule conflict\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/appointments/{{appointment_id}}/cancel"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4 Doctor",
+      "item": [
+        {
+          "name": "My profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/doctor/profile"
+          }
+        },
+        {
+          "name": "Update profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dr. Test Doctor\",\n  \"specialization\": \"Cardiology\",\n  \"bio\": \"Available for consultations\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/doctor/profile"
+          }
+        },
+        {
+          "name": "Set schedules",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"schedules\": [\n    {\n      \"day_of_week\": 1,\n      \"start_time\": \"09:00\",\n      \"end_time\": \"17:00\"\n    },\n    {\n      \"day_of_week\": 2,\n      \"start_time\": \"09:00\",\n      \"end_time\": \"17:00\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/doctor/schedules"
+          }
+        },
+        {
+          "name": "List my patients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/doctor/patients"
+          }
+        },
+        {
+          "name": "Create service",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cardiology Consultation\",\n  \"description\": \"General consultation\",\n  \"price\": 500,\n  \"duration_minutes\": 30,\n  \"is_active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/services"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var response = pm.response.json();",
+                  "  if (response.data && response.data.id) pm.collectionVariables.set('service_id', String(response.data.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update my service",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Consultation\",\n  \"price\": 600,\n  \"duration_minutes\": 30\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/services/{{service_id}}"
+          },
+          "description": "Only the doctor who owns the service can update it."
+        },
+        {
+          "name": "Delete my service",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/services/{{service_id}}"
+          },
+          "description": "Only the owning doctor can delete a service. Services with booked appointments cannot be deleted."
+        },
+        {
+          "name": "Complete appointment",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{base_url}}/appointments/{{appointment_id}}/complete"
+          }
+        }
+      ]
+    }
+  ]
+}
