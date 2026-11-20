@@ -1,0 +1,84 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 4505 >>
+stream
+BT /F2 18 Tf 52 790 Td (Healthcare Appointment API) Tj ET
+BT /F1 11 Tf 52 768 Td (Future Improvements and Completion Approach) Tj ET
+0.6 w 52 752 m 543 752 l S
+BT /F1 10 Tf 52 735 Td (Proposal only: the features below are not implemented in the current API. The scope,) Tj ET
+BT /F1 10 Tf 52 721 Td (payment rules, and privacy requirements should be confirmed before development.) Tj ET
+BT /F2 12 Tf 52 700 Td (1. Email verification and password reset) Tj ET
+BT /F1 9.5 Tf 52 682 Td (After registration, send a signed email-verification link and keep the account unverified) Tj ET
+BT /F1 9.5 Tf 52 669 Td (until the link is used. Block login for unverified users, provide a rate-limited resend) Tj ET
+BT /F1 9.5 Tf 52 656 Td (endpoint, and implement expiring password-reset tokens. Test link expiry, repeated use,) Tj ET
+BT /F1 9.5 Tf 52 643 Td (resend throttling, and login restrictions.) Tj ET
+BT /F2 12 Tf 52 620 Td (2. Appointment payments and doctor payouts \(Stripe Connect\)) Tj ET
+BT /F1 9.5 Tf 52 602 Td (Onboard doctors as Stripe Connect accounts and use Stripe-hosted onboarding for identity) Tj ET
+BT /F1 9.5 Tf 52 589 Td (and payout setup. Create an idempotent PaymentIntent for each appointment. Treat) Tj ET
+BT /F1 9.5 Tf 52 576 Td (signature-verified Stripe webhooks as the source of truth for payment state; persist) Tj ET
+BT /F1 9.5 Tf 52 563 Td (payment, refund, and payout status without storing card details. Define platform fees,) Tj ET
+BT /F1 9.5 Tf 52 550 Td (payout timing, cancellation, and refund policies before implementation.) Tj ET
+BT /F2 12 Tf 52 527 Td (3. State and city management) Tj ET
+BT /F1 9.5 Tf 52 509 Td (Add states and cities tables with foreign keys, indexes, and uniqueness constraints.) Tj ET
+BT /F1 9.5 Tf 52 496 Td (Provide admin-protected create, read, update, and delete endpoints, plus validated read) Tj ET
+BT /F1 9.5 Tf 52 483 Td (endpoints for clients. Store location references on doctor and patient profiles instead of) Tj ET
+BT /F1 9.5 Tf 52 470 Td (inconsistent free-text values.) Tj ET
+BT /F2 12 Tf 52 447 Td (4. Prescription management) Tj ET
+BT /F1 9.5 Tf 52 429 Td (Allow a doctor to issue a prescription for an eligible patient and appointment. Store a) Tj ET
+BT /F1 9.5 Tf 52 416 Td (prescription record and related medicine instructions in separate tables. Restrict creation) Tj ET
+BT /F1 9.5 Tf 52 403 Td (to the treating doctor and viewing to the patient and doctor on the record. Keep an audit) Tj ET
+BT /F1 9.5 Tf 52 390 Td (trail and use amendments rather than silently deleting issued prescriptions.) Tj ET
+BT /F2 12 Tf 52 367 Td (5. Appointment reminders) Tj ET
+BT /F1 9.5 Tf 52 349 Td (Use queued Laravel notifications for email or SMS reminders. Schedule reminders from) Tj ET
+BT /F1 9.5 Tf 52 336 Td (appointment dates, prevent duplicate sends with idempotency, and record delivery outcomes) Tj ET
+BT /F1 9.5 Tf 52 323 Td (so transient failures can be retried and monitored.) Tj ET
+BT /F2 12 Tf 52 300 Td (6. Doctor leave and holidays) Tj ET
+BT /F1 9.5 Tf 52 282 Td (Add date-range leave and holiday records. Apply them consistently to availability responses) Tj ET
+BT /F1 9.5 Tf 52 269 Td (and booking validation so unavailable dates cannot be booked, including when a client) Tj ET
+BT /F1 9.5 Tf 52 256 Td (submits a slot directly.) Tj ET
+BT /F2 12 Tf 52 233 Td (7. Admin role and operations) Tj ET
+BT /F1 9.5 Tf 52 215 Td (Introduce an explicit admin role with policies for managing accounts, states, cities, and) Tj ET
+BT /F1 9.5 Tf 52 202 Td (operational data. Record privileged changes in an audit log and test that patients and) Tj ET
+BT /F1 9.5 Tf 52 189 Td (doctors cannot access admin endpoints.) Tj ET
+BT /F2 12 Tf 52 166 Td (Suggested delivery sequence) Tj ET
+BT /F1 9.5 Tf 52 147 Td (1. Confirm payment, refund, verification, and prescription access rules with stakeholders.) Tj ET
+BT /F1 9.5 Tf 52 134 Td (2. Define endpoint contracts, migrations, role policies, and privacy requirements.) Tj ET
+BT /F1 9.5 Tf 52 121 Td (3. Implement each feature with focused feature tests and Postman examples.) Tj ET
+BT /F1 9.5 Tf 52 108 Td (4. Configure provider secrets outside source control; test Stripe webhooks and queued jobs) Tj ET
+BT /F1 9.5 Tf 52 95 Td (in a safe test environment.) Tj ET
+BT /F1 9.5 Tf 52 82 Td (5. Document rollout, failure handling, monitoring, and data-retention requirements.) Tj ET
+BT /F1 8 Tf 52 32 Td (Healthcare Appointment API - Future roadmap) Tj ET
+BT /F1 8 Tf 520 32 Td (Page 1 of 1) Tj ET
+
+endstream
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000191 00000 n 
+0000000266 00000 n 
+0000000402 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+4959
+%%EOF

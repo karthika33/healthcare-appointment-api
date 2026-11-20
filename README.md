@@ -138,8 +138,18 @@ Responses: `201` booked, `401` no token, `403` wrong role / not your appointment
 
 Postman collection: `postman_collection.json` (login requests save the token automatically).
 
-## Incomplete / future work
-- No email verification or password reset.
-- No email/SMS reminders.
-- No holidays / leave handling for doctors.
-- No admin role.
+## Future improvements (not implemented)
+
+The following items are proposed enhancements; they are not part of the current API.
+
+| Feature | Proposed approach |
+|---|---|
+| Email verification and password reset | Send a Laravel verification notification after registration and block login until the email is verified. Add a rate-limited resend flow and Laravel's expiring, single-use password reset flow. Cover verification, resend, expiry, and login restrictions with tests. |
+| Appointment payments and doctor payouts | Integrate Stripe Connect so doctors can complete account onboarding and receive payouts. Create an idempotent PaymentIntent for an appointment, confirm payment state only from signature-verified Stripe webhooks, and store payment/refund/payout states without storing card details. Define platform fees, payout timing, and refund rules before implementation. |
+| States and cities | Add `states` and `cities` tables with foreign keys and uniqueness constraints. Provide admin-protected CRUD and validated read endpoints, then reference city IDs from doctor/patient profiles instead of free-text locations. |
+| Prescriptions | Let a doctor create a prescription for an eligible patient/appointment; store the prescription and its medicine instructions in related tables. Allow only the issuing doctor to create it and the patient/doctor on the record to view it. Keep an audit trail and test cross-user access restrictions. |
+| Appointment reminders | Queue email/SMS reminders for upcoming appointments, make delivery idempotent, and record delivery failures for retry/monitoring. |
+| Doctor leave and holidays | Add date-range leave/holiday records and exclude unavailable periods from both availability results and booking validation. |
+| Admin role and operations | Introduce an explicit admin role with policies for managing users, locations, and operational data; audit privileged changes. |
+
+An implementation plan is also provided in [`docs/feature-improvements.pdf`](docs/feature-improvements.pdf).
